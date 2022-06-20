@@ -1,2 +1,2 @@
-Embulk Runset with Gradle
-==========================
+Prepare an environment for running Embulk
+==========================================
