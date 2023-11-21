@@ -1,16 +1,13 @@
 plugins {
     id "java"
     id "java-gradle-plugin"
-    id "com.gradle.plugin-publish" version "0.21.0"
     id "checkstyle"
+    id "com.gradle.plugin-publish" version "1.2.0"
 }
 
 repositories {
     mavenCentral()
 }
-
-sourceCompatibility = "1.8"
-targetCompatibility = "1.8"
 
 // This Gradle plugin is published under the group "gradle.plugin.org.embulk".
 // We have an option to avoid the "gradle.plugin" prefix, but we don't do it as it bothers the Gradle team.
@@ -23,6 +20,12 @@ description = "A Gradle plugin to prepare an environment for running Embulk"
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
     options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
 }
 
 dependencies {
@@ -38,20 +41,18 @@ jar {
 }
 
 gradlePlugin {
+    website = "https://www.embulk.org/"
+    vcsUrl = "https://github.com/embulk/gradle-embulk-runset"
+
     plugins {
         embulkPluginsPlugin {
             id = "org.embulk.runset"
             displayName = "A Gradle plugin to prepare an environment for running Embulk"
             description = "${project.description}"
             implementationClass = "org.embulk.gradle.runset.RunsetPlugin"
+            tags = ["embulk"]
         }
     }
-}
-
-pluginBundle {
-    website = "http://www.embulk.org/"
-    vcsUrl = "https://github.com/embulk/gradle-embulk-runset"
-    tags = ["embulk"]
 }
 
 test {
