@@ -49,7 +49,7 @@ gradlePlugin {
             id = "org.embulk.runset"
             displayName = "A Gradle plugin to prepare an environment for running Embulk"
             description = "${project.description}"
-            implementationClass = "org.embulk.gradle.runset.RunsetPlugin"
+            implementationClass = "org.embulk.gradle.runset.EmbulkRunSetPlugin"
             tags = ["embulk"]
         }
     }

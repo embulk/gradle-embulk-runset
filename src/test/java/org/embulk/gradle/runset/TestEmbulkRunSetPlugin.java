@@ -16,18 +16,16 @@
 
 package org.embulk.gradle.runset;
 
-import org.gradle.api.Project;
-import org.gradle.api.model.ObjectFactory;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
- * Configuration options for the {@link org.embulk.gradle.runset.RunsetPlugin}.
- */
-public class EmbulkRunsetExtension {
-    public EmbulkRunsetExtension(final Project project) {
-        final ObjectFactory objectFactory = project.getObjects();
+import java.io.IOException;
+import java.nio.file.Path;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-        this.project = project;
+public class TestEmbulkRunSetPlugin  {
+    @Test
+    public void test(@TempDir Path tempDir) throws IOException {
+        assertEquals(true, true);
     }
-
-    private final Project project;
 }
