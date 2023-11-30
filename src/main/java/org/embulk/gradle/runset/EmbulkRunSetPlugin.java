@@ -25,5 +25,6 @@ import org.gradle.api.Project;
 public class EmbulkRunSetPlugin implements Plugin<Project> {
     @Override
     public void apply(final Project project) {
+        project.getTasks().register("installEmbulkRunSet", InstallEmbulkRunSet.class);
     }
 }
