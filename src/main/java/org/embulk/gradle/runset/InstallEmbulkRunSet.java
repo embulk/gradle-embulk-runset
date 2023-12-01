@@ -25,7 +25,9 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.gradle.api.Action;
 import org.gradle.api.IllegalDependencyNotation;
+import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ArtifactCollection;
 import org.gradle.api.artifacts.Configuration;
@@ -38,6 +40,7 @@ import org.gradle.api.artifacts.result.ArtifactResolutionResult;
 import org.gradle.api.artifacts.result.ArtifactResult;
 import org.gradle.api.artifacts.result.ComponentArtifactsResult;
 import org.gradle.api.artifacts.result.ResolvedArtifactResult;
+import org.gradle.api.file.CopySpec;
 import org.gradle.api.file.DuplicatesStrategy;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.model.ObjectFactory;
@@ -102,6 +105,34 @@ public class InstallEmbulkRunSet extends Copy {
                 }
             }
         }
+    }
+
+    public InstallEmbulkRunSet embulkHome(final Object destEmbulkHome) {
+        if (destEmbulkHome instanceof CharSequence) {
+            super.into(destEmbulkHome);
+        } else if (destEmbulkHome instanceof File) {
+            super.into(destEmbulkHome);
+        } else if (destEmbulkHome instanceof Path) {
+            super.into(destEmbulkHome);
+        } else {
+            throw new InvalidUserDataException("Supplied embulkHome is invalid.");
+        }
+        return this;
+    }
+
+    @Override
+    public final Copy into​(final Object destDir) {
+        throw new InvalidUserDataException("Do not use 'into' directly in an InstallEmbulkRunSet task. Use 'embulkHome' instead.");
+    }
+
+    @Override
+    public final Copy into​(final Object destDir, final groovy.lang.Closure configureClosure) {
+        throw new InvalidUserDataException("Do not use 'into' directly in an InstallEmbulkRunSet task. Use 'embulkHome' instead.");
+    }
+
+    @Override
+    public final Copy into(final Object destPath, final Action<? super CopySpec> copySpec) {
+        throw new InvalidUserDataException("Do not use 'into' directly in an InstallEmbulkRunSet task. Use 'embulkHome' instead.");
     }
 
     private void fromArtifact(final ResolvedArtifactResult resolvedArtifactResult, final String artifactType) {
