@@ -12,7 +12,7 @@ Set up Gradle 8.4 or later (often with [the Gradle wrapper](https://docs.gradle.
 
 ```
 plugins {
-    id "org.embulk.runset" version "0.1.0"  // Just apply this Gradle plugin.
+    id "org.embulk.runset" version "0.1.1"  // Just apply this Gradle plugin.
 }
 
 repositories {
@@ -20,7 +20,7 @@ repositories {
 }
 
 installEmbulkRunSet {
-    into "path/to/embulk-home"  // Set your Embulk home directory to install the Embulk plugins.
+    embulkHome "path/to/embulk-home"  // Set your Embulk home directory to install the Embulk plugins.
 
     artifact "org.embulk:embulk-input-postgresql:0.13.2"
     artifact group: "org.embulk", name: "embulk-input-s3", version: "0.6.0"
