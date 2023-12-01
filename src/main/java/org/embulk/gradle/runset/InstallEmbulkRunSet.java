@@ -78,8 +78,8 @@ public class InstallEmbulkRunSet extends Copy {
         // Constructing an independent (detached) Configuration so that its dependencies are not affected by other plugins.
         final Configuration configuration = this.project.getConfigurations().detachedConfiguration(dependency);
 
-        final ResolvableDependencies resolvavbleDependencies = configuration.getIncoming();
-        final ArtifactCollection artifactCollection = resolvavbleDependencies.getArtifacts();
+        final ResolvableDependencies resolvableDependencies = configuration.getIncoming();
+        final ArtifactCollection artifactCollection = resolvableDependencies.getArtifacts();
 
         // Getting the JAR files and component IDs.
         final ArrayList<ComponentIdentifier> componentIds = new ArrayList<>();
