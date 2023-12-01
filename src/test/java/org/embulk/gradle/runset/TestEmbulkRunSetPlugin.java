@@ -16,16 +16,31 @@
 
 package org.embulk.gradle.runset;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.embulk.gradle.runset.Util.prepareProjectDir;
+import static org.embulk.gradle.runset.Util.runGradle;
 
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 public class TestEmbulkRunSetPlugin  {
     @Test
-    public void test(@TempDir Path tempDir) throws IOException {
-        assertEquals(true, true);
+    public void testSimple(@TempDir Path tempDir) throws IOException {
+        final Path projectDir = prepareProjectDir(tempDir, "simple");
+
+        runGradle(projectDir, "installEmbulkRunSet");
+
+        Files.walkFileTree(projectDir.resolve("build/simple"), new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+                    System.out.println(projectDir.relativize(file));
+                    return FileVisitResult.CONTINUE;
+                }
+            });
     }
 }

@@ -1,0 +1,13 @@
+plugins {
+    id "org.embulk.runset"
+}
+
+repositories {
+    mavenCentral()
+}
+
+installEmbulkRunSet {
+    into "${project.buildDir}/simple"
+    artifact "org.embulk:embulk-input-postgresql:0.13.2"
+    artifact group: "org.embulk", name: "embulk-input-s3", version: "0.6.0"
+}
