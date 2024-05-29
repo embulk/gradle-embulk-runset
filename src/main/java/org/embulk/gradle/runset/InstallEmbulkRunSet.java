@@ -110,8 +110,8 @@ public class InstallEmbulkRunSet extends Copy {
 
         if (id instanceof ModuleComponentIdentifier) {
             final Path modulePath = moduleToPath((ModuleComponentIdentifier) id);
-            this.logger.info("Setting to copy {}:{} into {}", id, artifactType, modulePath);
-            this.logger.debug("Cached file: {}", file);
+            this.logger.lifecycle("Setting to copy {}:{} into {}", id, artifactType, modulePath);
+            this.logger.info("Cached file: {}", file);
             this.from(file, copy -> {
                 copy.into(modulePath.toFile());
                 copy.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
@@ -148,14 +148,14 @@ public class InstallEmbulkRunSet extends Copy {
     // https://github.com/gradle/gradle/blob/v8.4.0/subprojects/dependency-management/src/main/java/org/gradle/api/internal/notations/DependencyStringNotationConverter.java
     private Dependency dependencyFromCharSequence(final CharSequence dependencyNotation) {
         final String notationString = dependencyNotation.toString();
-        this.logger.debug("Artifact: {}", notationString);
+        this.logger.info("Artifact: {}", notationString);
         return this.project.getDependencies().create(notationString);
     }
 
     // https://github.com/gradle/gradle/blob/v8.4.0/subprojects/core/src/main/java/org/gradle/internal/typeconversion/MapNotationConverter.java
     private Dependency dependencyFromMap(final Map dependencyNotation) {
         final Map<String, String> notationMap = validateMap(dependencyNotation);
-        this.logger.debug("Artifact: {}", notationMap);
+        this.logger.info("Artifact: {}", notationMap);
         return this.project.getDependencies().create(notationMap);
     }
 
