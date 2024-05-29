@@ -25,7 +25,9 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.gradle.api.Action;
 import org.gradle.api.IllegalDependencyNotation;
+import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ArtifactCollection;
 import org.gradle.api.artifacts.Configuration;
@@ -38,6 +40,7 @@ import org.gradle.api.artifacts.result.ArtifactResolutionResult;
 import org.gradle.api.artifacts.result.ArtifactResult;
 import org.gradle.api.artifacts.result.ComponentArtifactsResult;
 import org.gradle.api.artifacts.result.ResolvedArtifactResult;
+import org.gradle.api.file.CopySpec;
 import org.gradle.api.file.DuplicatesStrategy;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.model.ObjectFactory;
@@ -104,6 +107,48 @@ public class InstallEmbulkRunSet extends Copy {
         }
     }
 
+    public InstallEmbulkRunSet embulkHome(final File dir) {
+        if (dir == null) {
+            throw new InvalidUserDataException("Supplied embulkHome is null.");
+        }
+
+        if (!dir.isAbsolute()) {
+            throw new InvalidUserDataException(
+                    "Supplied embulkHome \"" + dir.toString() + "\" is not absolute."
+                    + " Get an absolute path by: File#getAbsoluteFile()");
+        }
+
+        if (dir.exists()) {
+            if (dir.isDirectory()) {
+                this.logger.lifecycle("Supplied embulkHome \"{}\" already exists.", dir);
+            } else {
+                throw new InvalidUserDataException(
+                        "Supplied embulkHome \"" + dir.toString() + "\" already exists, but is not a directory.");
+            }
+        } else {
+            // TODO: Check parents recursively?
+            this.logger.lifecycle("Supplied embulkHome \"{}\" does not exist, then will be created.", dir);
+        }
+
+        super.into(dir);
+        return this;
+    }
+
+    @Override
+    public final Copy into​(final Object destDir) {
+        throw new InvalidUserDataException("\"into\" is not permitted in InstallEmbulkRunSet. Use \"embulkHome\" instead.");
+    }
+
+    @Override
+    public final Copy into​(final Object destDir, final groovy.lang.Closure configureClosure) {
+        throw new InvalidUserDataException("\"into\" is not permitted in InstallEmbulkRunSet. Use \"embulkHome\" instead.");
+    }
+
+    @Override
+    public final Copy into(final Object destPath, final Action<? super CopySpec> copySpec) {
+        throw new InvalidUserDataException("\"into\" is not permitted in InstallEmbulkRunSet. Use \"embulkHome\" instead.");
+    }
+
     private void fromArtifact(final ResolvedArtifactResult resolvedArtifactResult, final String artifactType) {
         final ComponentIdentifier id = resolvedArtifactResult.getId().getComponentIdentifier();
         final File file = resolvedArtifactResult.getFile();
@@ -148,14 +193,14 @@ public class InstallEmbulkRunSet extends Copy {
     // https://github.com/gradle/gradle/blob/v8.4.0/subprojects/dependency-management/src/main/java/org/gradle/api/internal/notations/DependencyStringNotationConverter.java
     private Dependency dependencyFromCharSequence(final CharSequence dependencyNotation) {
         final String notationString = dependencyNotation.toString();
-        this.logger.info("Artifact: {}", notationString);
+        this.logger.info("Supplied artifact: {}", notationString);
         return this.project.getDependencies().create(notationString);
     }
 
     // https://github.com/gradle/gradle/blob/v8.4.0/subprojects/core/src/main/java/org/gradle/internal/typeconversion/MapNotationConverter.java
     private Dependency dependencyFromMap(final Map dependencyNotation) {
         final Map<String, String> notationMap = validateMap(dependencyNotation);
-        this.logger.info("Artifact: {}", notationMap);
+        this.logger.info("Supplied artifact: {}", notationMap);
         return this.project.getDependencies().create(notationMap);
     }
 
