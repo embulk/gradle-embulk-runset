@@ -2,7 +2,7 @@ plugins {
     id "java"
     id "java-gradle-plugin"
     id "checkstyle"
-    id "com.gradle.plugin-publish" version "1.2.0"
+    alias(libs.plugins.gradle.plugin.publish)
 }
 
 repositories {
@@ -32,8 +32,9 @@ dependencies {
     implementation gradleApi()
 
     testImplementation gradleTestKit()
-    testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.2"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.2"
+    testImplementation platform(libs.junit5.bom)
+    testImplementation libs.bundles.junit5.implementation
+    testRuntimeOnly libs.bundles.junit5.runtime
 }
 
 jar {
