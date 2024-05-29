@@ -14,7 +14,7 @@ jobs:
         - macOS-13 # OpenJDK 8 is not supported on macos-14+ (M1).
         - windows-latest
         gradle:
-        - "8.4"
+        - "8.7"
     steps:
     - name: Set Git's core.autocrlf to false for Windows before checkout
       run: git config --global core.autocrlf false
