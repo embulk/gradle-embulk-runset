@@ -20,7 +20,7 @@ repositories {
 }
 
 installEmbulkRunSet {
-    into "path/to/embulk-home"  // Set your Embulk home directory to install the Embulk plugins.
+    embulkHome file("path/to/embulk-home")  // Set your Embulk home directory (absolute path) to install the Embulk plugins.
 
     artifact "org.embulk:embulk-input-postgresql:0.13.2"
     artifact group: "org.embulk", name: "embulk-input-s3", version: "0.6.0"
