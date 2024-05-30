@@ -14,7 +14,7 @@ repositories {
 // They want Gradle plugins to be published under the "gradle.plugin" prefix for some security reasons.
 // https://plugins.gradle.org/docs/publish-plugin
 group = "org.embulk"
-version = "0.1.1-SNAPSHOT"
+version = "0.2.0-SNAPSHOT"
 description = "A Gradle plugin to prepare an environment for running Embulk"
 
 tasks.withType(JavaCompile) {
