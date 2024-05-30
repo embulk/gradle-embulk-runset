@@ -8,7 +8,7 @@ Note that everything (including syntax, behavior, and else) can change drastical
 Usage
 ------
 
-Set up Gradle 8.4 or later (often with [the Gradle wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html)), and prepare `build.gradle` like below.
+Set up Gradle 8.7 or later, and make `build.gradle` like below.
 
 ```
 plugins {
@@ -27,4 +27,4 @@ installEmbulkRunSet {
 }
 ```
 
-Then run `./gradlew installEmbulkRunSet`.
+Run `./gradlew installEmbulkRunSet`, then.
