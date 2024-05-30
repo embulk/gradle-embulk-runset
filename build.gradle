@@ -70,10 +70,10 @@ test {
 }
 
 checkstyle {
-    toolVersion "8.23"
-    configFile = file("${projectDir}/config/checkstyle/checkstyle.xml")
+    toolVersion = libs.versions.checkstyle.get()
+    configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
     configProperties = [
-        "checkstyle.config.path": file("${projectDir}/config/checkstyle")
+        "org.checkstyle.google.suppressionfilter.config": file("${rootProject.projectDir}/config/checkstyle/checkstyle-suppressions.xml"),
     ]
     ignoreFailures = false
     maxWarnings = 0
