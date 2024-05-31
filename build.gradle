@@ -15,11 +15,16 @@ repositories {
 // https://plugins.gradle.org/docs/publish-plugin
 group = "org.embulk"
 version = "0.2.0-SNAPSHOT"
-description = "A Gradle plugin to prepare an environment for running Embulk"
+description = "A Gradle plugin to set up an environment for running Embulk"
+
+configurations {
+    compileClasspath.resolutionStrategy.activateDependencyLocking()
+    runtimeClasspath.resolutionStrategy.activateDependencyLocking()
+}
 
 tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
     options.encoding = "UTF-8"
-    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
 }
 
 java {
@@ -41,6 +46,19 @@ jar {
     from rootProject.file("LICENSE")
 }
 
+// A safer and strict alternative to: "dependencies" (and "dependencies --write-locks")
+//
+// This task fails explicitly when the specified dependency is not available.
+// In contrast, "dependencies (--write-locks)" does not fail even when a part the dependencies are unavailable.
+//
+// https://docs.gradle.org/8.7/userguide/dependency_locking.html#generating_and_updating_dependency_locks
+task checkDependencies {
+    notCompatibleWithConfigurationCache("The task \"checkDependencies\" filters configurations at execution time.")
+    doLast {
+        configurations.findAll { it.canBeResolved }.each { it.resolve() }
+    }
+}
+
 gradlePlugin {
     website = "https://www.embulk.org/"
     vcsUrl = "https://github.com/embulk/gradle-embulk-runset"
@@ -48,7 +66,7 @@ gradlePlugin {
     plugins {
         embulkPluginsPlugin {
             id = "org.embulk.runset"
-            displayName = "A Gradle plugin to prepare an environment for running Embulk"
+            displayName = "A Gradle plugin to set up an environment for running Embulk"
             description = "${project.description}"
             implementationClass = "org.embulk.gradle.runset.EmbulkRunSetPlugin"
             tags = ["embulk"]
@@ -66,6 +84,13 @@ test {
         showStackTraces = true
         showStandardStreams = true
         events "passed", "skipped", "failed", "standardOut", "standardError"
+    }
+}
+
+tasks.withType(Checkstyle) {
+    reports {
+        // Not to skip up-to-date checkstyles.
+        outputs.upToDateWhen { false }
     }
 }
 
