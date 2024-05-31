@@ -66,7 +66,7 @@ public class InstallEmbulkRunSet extends Copy {
      *
      * <p>It tries to simulate Gradle's dependency notations, but it is yet far from perfect.
      *
-     * @see <a href="https://github.com/gradle/gradle/blob/v8.4.0/subprojects/dependency-management/src/main/java/org/gradle/api/internal/notations/DependencyNotationParser.java#L49-L86">org.gradle.api.internal.notations.DependencyNotationParser#create</a>
+     * @see <a href="https://github.com/gradle/gradle/blob/v8.7.0/platforms/software/dependency-management/src/main/java/org/gradle/api/internal/notations/DependencyNotationParser.java#L49-L86">org.gradle.api.internal.notations.DependencyNotationParser#create</a>
      */
     public void artifact(final Object dependencyNotation) {
         final Dependency dependency;
@@ -190,14 +190,14 @@ public class InstallEmbulkRunSet extends Copy {
         return path;
     }
 
-    // https://github.com/gradle/gradle/blob/v8.4.0/subprojects/dependency-management/src/main/java/org/gradle/api/internal/notations/DependencyStringNotationConverter.java
+    // https://github.com/gradle/gradle/blob/v8.7.0/platforms/software/dependency-management/src/main/java/org/gradle/api/internal/notations/DependencyStringNotationConverter.java
     private Dependency dependencyFromCharSequence(final CharSequence dependencyNotation) {
         final String notationString = dependencyNotation.toString();
         this.logger.info("Supplied artifact: {}", notationString);
         return this.project.getDependencies().create(notationString);
     }
 
-    // https://github.com/gradle/gradle/blob/v8.4.0/subprojects/core/src/main/java/org/gradle/internal/typeconversion/MapNotationConverter.java
+    // https://github.com/gradle/gradle/blob/v8.7.0/subprojects/core/src/main/java/org/gradle/internal/typeconversion/MapNotationConverter.java
     private Dependency dependencyFromMap(final Map dependencyNotation) {
         final Map<String, String> notationMap = validateMap(dependencyNotation);
         this.logger.info("Supplied artifact: {}", notationMap);
@@ -234,7 +234,7 @@ public class InstallEmbulkRunSet extends Copy {
         return (Map<Object, Object>) map;
     }
 
-    // https://github.com/gradle/gradle/blob/v8.4.0/subprojects/dependency-management/src/main/java/org/gradle/api/internal/notations/DependencyMapNotationConverter.java#L42-L58
+    // https://github.com/gradle/gradle/blob/v8.7.0/platforms/software/dependency-management/src/main/java/org/gradle/api/internal/notations/DependencyMapNotationConverter.java#L42-L58
     private static List<String> ACCEPTABLE_MAP_KEYS =
             Arrays.asList("group", "name", "version", "configuration", "ext", "classifier");
 
