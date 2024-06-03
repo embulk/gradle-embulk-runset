@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -65,6 +66,7 @@ public class InstallEmbulkRunSet extends Copy {
         this.logger = this.project.getLogger();
         this.embulkSystemProperties = new Properties();
         this.embulkSystemPropertiesSource = null;
+        this.m2RepoRelative = DEFAULT_M2_REPO_RELATIVE;
 
         final ObjectFactory objectFactory = this.project.getObjects();
     }
@@ -142,6 +144,26 @@ public class InstallEmbulkRunSet extends Copy {
         return this;
     }
 
+    public InstallEmbulkRunSet m2RepoRelative(final String dir) {
+        if (dir == null) {
+            throw new InvalidUserDataException("Supplied m2RepoRelative is null.");
+        }
+
+        try {
+            this.m2RepoRelative = Paths.get(dir);
+        } catch (final InvalidPathException ex) {
+            throw new InvalidUserDataException("Supplied m2RepoRelative \"" + dir + "\"is invalid.", ex);
+        }
+
+        if (this.m2RepoRelative.isAbsolute()) {
+            throw new InvalidUserDataException(
+                    "Supplied m2RepoRelative \"" + dir + "\" is absolute."
+                    + " Supply a relative path from embulkHome.");
+        }
+
+        return this.embulkSystemProperty("m2_repo", this.m2RepoRelative.toString());
+    }
+
     public InstallEmbulkRunSet embulkSystemProperty(final String key, final String value) {
         this.createPropertiesSourceAndSetToCopy();
         this.embulkSystemProperties.setProperty(key, value);
@@ -172,7 +194,7 @@ public class InstallEmbulkRunSet extends Copy {
             this.logger.lifecycle("Setting to copy {}:{} into {}", id, artifactType, modulePath);
             this.logger.info("Cached file: {}", file);
             this.from(file, copy -> {
-                copy.into(modulePath.toFile());
+                copy.into(this.m2RepoRelative.resolve(modulePath).toFile());
                 copy.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
             });
         } else if (id instanceof ProjectComponentIdentifier) {
@@ -280,6 +302,8 @@ public class InstallEmbulkRunSet extends Copy {
         }
     }
 
+    private static final Path DEFAULT_M2_REPO_RELATIVE = Paths.get("lib").resolve("m2").resolve("repository");
+
     // https://github.com/gradle/gradle/blob/v8.7.0/platforms/software/dependency-management/src/main/java/org/gradle/api/internal/notations/DependencyMapNotationConverter.java#L42-L58
     private static List<String> ACCEPTABLE_MAP_KEYS =
             Arrays.asList("group", "name", "version", "configuration", "ext", "classifier");
@@ -291,4 +315,6 @@ public class InstallEmbulkRunSet extends Copy {
     private final Properties embulkSystemProperties;
 
     private Path embulkSystemPropertiesSource;
+
+    private Path m2RepoRelative;
 }

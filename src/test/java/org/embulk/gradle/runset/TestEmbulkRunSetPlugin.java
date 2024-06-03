@@ -52,7 +52,8 @@ public class TestEmbulkRunSetPlugin  {
         try (final InputStream in = Files.newInputStream(propertiesPath)) {
             properties.load(in);
         }
-        assertEquals(1, properties.size());
+        assertEquals(2, properties.size());
         assertEquals("value", properties.getProperty("key"));
+        assertEquals("lib/m2/repository", properties.getProperty("m2_repo"));
     }
 }
