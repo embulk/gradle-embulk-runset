@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Properties;
@@ -54,6 +55,6 @@ public class TestEmbulkRunSetPlugin  {
         }
         assertEquals(2, properties.size());
         assertEquals("value", properties.getProperty("key"));
-        assertEquals("lib/m2/repository", properties.getProperty("m2_repo"));
+        assertEquals(Paths.get("lib").resolve("m2").resolve("repository").toString(), properties.getProperty("m2_repo"));
     }
 }
