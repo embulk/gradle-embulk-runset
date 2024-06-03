@@ -18,13 +18,16 @@ package org.embulk.gradle.runset;
 
 import static org.embulk.gradle.runset.Util.prepareProjectDir;
 import static org.embulk.gradle.runset.Util.runGradle;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Properties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -42,5 +45,14 @@ public class TestEmbulkRunSetPlugin  {
                     return FileVisitResult.CONTINUE;
                 }
             });
+
+        final Properties properties = new Properties();
+        final Path propertiesPath = projectDir.resolve("build/simple/embulk.properties");
+        Files.copy(propertiesPath, System.out);
+        try (final InputStream in = Files.newInputStream(propertiesPath)) {
+            properties.load(in);
+        }
+        assertEquals(1, properties.size());
+        assertEquals("value", properties.getProperty("key"));
     }
 }
