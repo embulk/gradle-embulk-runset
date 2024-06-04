@@ -31,6 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import org.gradle.api.Action;
 import org.gradle.api.IllegalDependencyNotation;
 import org.gradle.api.InvalidUserDataException;
@@ -64,8 +65,10 @@ public class InstallEmbulkRunSet extends Copy {
 
         this.project = this.getProject();
         this.logger = this.project.getLogger();
+        this.embulkHome = null;
         this.embulkSystemProperties = new Properties();
         this.embulkSystemPropertiesSource = null;
+        this.jrubyRelative = null;
         this.m2RepoRelative = DEFAULT_M2_REPO_RELATIVE;
 
         final ObjectFactory objectFactory = this.project.getObjects();
@@ -117,6 +120,45 @@ public class InstallEmbulkRunSet extends Copy {
         }
     }
 
+    /**
+     * Adds a JRuby-complete Maven artifact to be installed.
+     *
+     * <p>It tries to simulate Gradle's dependency notations, but it is yet far from perfect.
+     *
+     * @see <a href="https://github.com/gradle/gradle/blob/v8.7.0/platforms/software/dependency-management/src/main/java/org/gradle/api/internal/notations/DependencyNotationParser.java#L49-L86">org.gradle.api.internal.notations.DependencyNotationParser#create</a>
+     */
+    public InstallEmbulkRunSet jruby(final Object dependencyNotation) {
+        final Dependency dependency;
+        if (dependencyNotation instanceof CharSequence) {
+            dependency = this.dependencyFromCharSequence((CharSequence) dependencyNotation);
+        } else if (dependencyNotation instanceof Map) {
+            dependency = this.dependencyFromMap((Map) dependencyNotation);
+        } else {
+            throw new IllegalDependencyNotation("Supplied jruby module notation is invalid.");
+        }
+
+        // Constructing an independent (detached) Configuration so that its dependencies are not affected by other plugins.
+        final Configuration configuration = this.project.getConfigurations().detachedConfiguration(dependency);
+
+        final ResolvableDependencies resolvableDependencies = configuration.getIncoming();
+        final ArtifactCollection artifactCollection = resolvableDependencies.getArtifacts();
+
+        // Getting the JAR file.
+        final ArrayList<ComponentIdentifier> componentIds = new ArrayList<>();
+        final Set<ResolvedArtifactResult> resolvedArtifactResults = artifactCollection.getArtifacts();
+        if (resolvedArtifactResults.isEmpty()) {
+            throw new IllegalDependencyNotation("Supplied jruby module notation is unavailable.");
+        }
+        if (resolvedArtifactResults.size() > 1) {
+            throw new IllegalDependencyNotation("Supplied jruby module notation has dependencies. Specify jruby-complete instead.");
+        }
+
+        final ResolvedArtifactResult resolvedArtifactResult = resolvedArtifactResults.stream().findFirst().get();
+        this.jrubyRelative = this.fromArtifact(resolvedArtifactResult, "jar");
+
+        return this;
+    }
+
     public InstallEmbulkRunSet embulkHome(final File dir) {
         if (dir == null) {
             throw new InvalidUserDataException("Supplied embulkHome is null.");
@@ -139,6 +181,8 @@ public class InstallEmbulkRunSet extends Copy {
             // TODO: Check parents recursively?
             this.logger.lifecycle("Supplied embulkHome \"{}\" does not exist, then will be created.", dir);
         }
+
+        this.embulkHome = dir.toPath();
 
         super.into(dir);
         return this;
@@ -185,18 +229,20 @@ public class InstallEmbulkRunSet extends Copy {
         throw new InvalidUserDataException("\"into\" is not permitted in InstallEmbulkRunSet. Use \"embulkHome\" instead.");
     }
 
-    private void fromArtifact(final ResolvedArtifactResult resolvedArtifactResult, final String artifactType) {
+    private Path fromArtifact(final ResolvedArtifactResult resolvedArtifactResult, final String artifactType) {
         final ComponentIdentifier id = resolvedArtifactResult.getId().getComponentIdentifier();
         final File file = resolvedArtifactResult.getFile();
 
         if (id instanceof ModuleComponentIdentifier) {
             final Path modulePath = moduleToPath((ModuleComponentIdentifier) id);
+            final Path modulePathFromHome = this.m2RepoRelative.resolve(modulePath);
             this.logger.lifecycle("Setting to copy {}:{} into {}", id, artifactType, modulePath);
             this.logger.info("Cached file: {}", file);
             this.from(file, copy -> {
-                copy.into(this.m2RepoRelative.resolve(modulePath).toFile());
+                copy.into(modulePathFromHome.toFile());
                 copy.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
             });
+            return modulePathFromHome.resolve(file.getName());
         } else if (id instanceof ProjectComponentIdentifier) {
             throw new IllegalDependencyNotation("Cannot install artifacts for a project component (" + id.getDisplayName() + ")");
         } else {
@@ -273,6 +319,16 @@ public class InstallEmbulkRunSet extends Copy {
     @Override
     @TaskAction
     protected void copy() {
+        if (this.embulkHome == null) {
+            throw new InvalidUserDataException("embulkHome is not supplied.");
+        }
+
+        if (this.jrubyRelative != null) {
+            this.embulkSystemProperties.setProperty(
+                    "jruby",
+                    this.embulkHome.resolve(this.jrubyRelative).toUri().toString());
+        }
+
         if (this.embulkSystemPropertiesSource != null) {
             try (final OutputStream out = Files.newOutputStream(this.embulkSystemPropertiesSource)) {
                 this.embulkSystemProperties.store(
@@ -314,7 +370,11 @@ public class InstallEmbulkRunSet extends Copy {
 
     private final Properties embulkSystemProperties;
 
+    private Path embulkHome;
+
     private Path embulkSystemPropertiesSource;
+
+    private Path jrubyRelative;
 
     private Path m2RepoRelative;
 }
