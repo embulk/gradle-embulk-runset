@@ -19,9 +19,12 @@ package org.embulk.gradle.runset;
 import static org.embulk.gradle.runset.Util.prepareProjectDir;
 import static org.embulk.gradle.runset.Util.runGradle;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,7 +37,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 public class TestEmbulkRunSetPlugin  {
     @Test
-    public void testSimple(@TempDir Path tempDir) throws IOException {
+    public void testSimple(@TempDir Path tempDir) throws IOException, URISyntaxException {
         final Path projectDir = prepareProjectDir(tempDir, "simple");
 
         runGradle(projectDir, "installEmbulkRunSet");
@@ -53,8 +56,21 @@ public class TestEmbulkRunSetPlugin  {
         try (final InputStream in = Files.newInputStream(propertiesPath)) {
             properties.load(in);
         }
-        assertEquals(2, properties.size());
+        assertEquals(3, properties.size());
         assertEquals("value", properties.getProperty("key"));
         assertEquals(Paths.get("lib").resolve("m2").resolve("repository").toString(), properties.getProperty("m2_repo"));
+        final URI jrubyUri = new URI(properties.getProperty("jruby"));
+        assertEquals("file", jrubyUri.getScheme());
+        final Path jrubyAbsolutePath = Paths.get(jrubyUri);
+        assertTrue(jrubyAbsolutePath.isAbsolute());
+        assertTrue(jrubyAbsolutePath.endsWith(
+                       Paths.get("lib")
+                       .resolve("m2")
+                       .resolve("repository")
+                       .resolve("org")
+                       .resolve("jruby")
+                       .resolve("jruby-complete")
+                       .resolve("9.1.15.0")
+                       .resolve("jruby-complete-9.1.15.0.jar")));
     }
 }
