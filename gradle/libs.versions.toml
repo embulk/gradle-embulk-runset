@@ -1,6 +1,6 @@
 [versions]
 
-gradle-plugin-publish = "1.2.2"
+gradle-plugin-publish = "1.3.0"
 
 junit5 = "5.11.0"
 
