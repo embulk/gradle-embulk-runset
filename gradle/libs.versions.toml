@@ -2,7 +2,7 @@
 
 gradle-plugin-publish = "1.2.2"
 
-junit5 = "5.11.3"
+junit5 = "5.11.4"
 
 checkstyle = "9.3"
 
